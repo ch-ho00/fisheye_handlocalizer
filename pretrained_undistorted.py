@@ -23,7 +23,7 @@ def save_fig(img,position):
 def draw_box(model,img, filename, dir):
     scales = [   1.25, 1.015625, 0.78125, 0.546875, 1.5625, 1.328125, 1.09375, 0.859375, 0.625, 1.40625, 1.171875, 0.9375, 0.703125, 1.71875, 1.484375]
     detectedBoxes = [] ## [x,y,conf,scale]
-    sid= 500
+    sid= 200
     for sc in scales:
         print(sc)
         detectedBoxes.append(image_pyramid_step(model,img,sid,scale=sc))
@@ -61,7 +61,7 @@ def draw_box(model,img, filename, dir):
     return x_top, y_top, side 
 
 files = os.listdir('./dataset')
-model =  pickle.load(gzip.open("./models/0709_aug.pkl", 'rb'))
+model =  pickle.load(gzip.open("./models/further_0709_aug.pkl", 'rb'))
 
 for file in files:
     if file == "cropped_hand":

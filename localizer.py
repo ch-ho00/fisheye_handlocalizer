@@ -31,7 +31,7 @@ def dir2hog(x):
             x_rand = random.randint(0,240-side)
             y_rand = random.randint(0,240-side) 
             tmp = crop2(img, [x_rand, y_rand, x_rand+side, y_rand+side])
-        tmp = resize(tmp,((100,100)))
+        tmp = resize(tmp,((150,150)))
         tmp = rgb2gray(tmp)
         x_hog.append(hog(tmp)) 
     return x_hog
@@ -56,7 +56,7 @@ def img2hog(x):
         x_rand = random.randint(0,240-side)
         y_rand = random.randint(0,240-side) 
         tmp = crop2(img, [x_rand, y_rand, x_rand+side, y_rand+side])
-    tmp = resize(tmp,((100,100)))
+    tmp = resize(tmp,((150,150)))
     tmp = rgb2gray(tmp)
     return hog(tmp)
 
@@ -233,25 +233,23 @@ def evaluate(x, label, model, step_x=20, step_y=20):
     out_hog = []
     label = []
     false_pos = 0 
-    test_img = plt.imread(x[0][0])
     for img_dir, locs in x:
         # locs turns into x_min, y_min, side of true value
         locs = points2minmax(locs)
         arg1 = locs
-        for randx in range(0,test_img.shape[1]-locs[2], step_x):       
-            for randy in range(0, test_img.shape[0]-locs[2], step_y):
-                try:
-                    arg2 = [randx,randy, locs[2]]
-                    z = overlap(arg1,arg2)
-                    img_hog = dir2hog([(img_dir,arg2)])[0]
-                    predicted = model.predict([img_hog])[0]
-                    if predicted == 1 and z < 0.5:
-                        out_hog.append(img_hog)
-                        false_pos += 1 
-                        break
-                except:
-                    print("Error" ,randx,randy)
-                    continue
+        img_np = plt.imread(img_dir)
+        shape = img_np.shape
+        for randx in range(0,shape[1]-locs[2], step_x):       
+            for randy in range(0, shape[0]-locs[2], step_y): 
+                arg2 = [randx,randy, locs[2]]
+                z = overlap(arg1,arg2)
+                img_np2 = img_np[randy:randy+locs[2], randx: randx +locs[2]]
+                img_np2 = resize(img_np2, ((150,150)))
+                img_hog = hog(rgb2gray(img_np2))
+                predicted = model.predict([img_hog])[0]
+                if predicted == 1 and z < 0.5:
+                    out_hog.append(img_hog)
+                    false_pos += 1 
     label = [0] * false_pos
     return out_hog, label, false_pos   
 
@@ -292,7 +290,6 @@ class hand_localizer(object):
         self.handDetector = None
         self.test_data = None
 
-
     def train(self):
         print("Training start")
         self.handDetector = hard_negative_mining(self.train_data, self.train_label)
@@ -310,22 +307,21 @@ class hand_localizer(object):
         for img in tqdm(test_imgs):
             draw_box('./dataset/test_data/'+img, self.handDetector,save_dir, img)
     def further_train(self, train_dir='./dataset/error'):
+        '''
+        By moving model's false output to './dataset/error' the model further trains on the false inputs
+        '''
         test_imgs = os.listdir('./dataset/error')
         for img in test_imgs:
             img_np = plt.imread('./dataset/error/'+img)
             print(img_np.shape)
-            for x in range(0,img_np.shape[0]-70,10):
-                for y in range(0,img_np.shape[1]-70,10):
-                    try:
-                        img_hog = img2hog((img_np, [x,y,70]))
-                        self.handDetector.partial_fit([img_hog], [0])
-                    except:
-                        print("err",x,y)
-# pretrain_model = "0711_aug.pkl"
-# model = hand_localizer()
-# if pretrain_model in os.listdir('./models/'):
-#     model.handDetector = pickle.load(gzip.open('./models/'+pretrain_model, 'rb'))
-# else:
-#     model.train()
-# model.evaluate("./results/fisheye_detector/test_data")
-# model.save("0711_aug.pkl")
+            img_np = resize(img_np, ((150,150)))
+            img_hog = hog(rgb2gray(img_np))                        
+            self.handDetector.partial_fit([img_hog], [0])
+pretrain_model = "0711_aug.pkl"
+model = hand_localizer()
+if pretrain_model in os.listdir('./models/'):
+    model.handDetector = pickle.load(gzip.open('./models/'+pretrain_model, 'rb'))
+else:
+    model.train()
+model.save("0711_aug.pkl")
+model.evaluate("./results/fisheye_detector/test_data")
