@@ -23,9 +23,8 @@ def save_fig(img,position):
 def draw_box(model,img, filename, dir):
     scales = [   1.25, 1.015625, 0.78125, 0.546875, 1.5625, 1.328125, 1.09375, 0.859375, 0.625, 1.40625, 1.171875, 0.9375, 0.703125, 1.71875, 1.484375]
     detectedBoxes = [] ## [x,y,conf,scale]
-    sid= 200
+    sid= 400
     for sc in scales:
-        print(sc)
         detectedBoxes.append(image_pyramid_step(model,img,sid,scale=sc))
     side = [0 for i in range(len(scales))]
     for i in range(len(scales)):
@@ -56,17 +55,17 @@ def draw_box(model,img, filename, dir):
     fig.add_axes(ax)
     plt.axis('off')
     plt.imshow(img[position[1]:position[3]+20,position[0]: position[2]+20])
-    plt.savefig('./results/fisheye_detector/0709_side'+str(sid)+'/augg_'+filename)
+    plt.savefig('./results/fisheye_detector/0715/'+filename)
     print(x_top, y_top, side)
     return x_top, y_top, side 
 
 files = os.listdir('./dataset')
-model =  pickle.load(gzip.open("./models/further_0709_aug.pkl", 'rb'))
+model =  pickle.load(gzip.open("./models/further3_0711_aug.pkl", 'rb'))
 
 for file in files:
     if file == "cropped_hand":
         continue
-    elif "test_data" in file:
+    elif "test_data" == file:
         imgs = os.listdir('./dataset/'+file)
         for img in tqdm(imgs):
             if 1:

@@ -48,7 +48,7 @@ def convertToGrayToHOG(imgVector):
 #takes returns cropped image 
 def crop(img,x1,x2,y1,y2):
     crp=img[y1:y2,x1:x2]
-    crp=resize(crp,((100,100)))#resize
+    crp=resize(crp,((150,150)))#resize
     return crp
 
 #save classifier

@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 import os
 from random import randint
 from tqdm import tqdm
+from skimage.transform import resize
 
 
-files = os.listdir('./dataset/cropped_hand/')
+files = os.listdir('./original_dataset/cropped_hand/')
 for file in files:
     rand = []
     imgs = os.listdir('./dataset/cropped_hand/'+file)

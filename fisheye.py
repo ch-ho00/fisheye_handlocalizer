@@ -15,15 +15,15 @@ def fisheye(xy):
     return np.column_stack((
         r * np.cos(theta), r * np.sin(theta)
         )) + center
-l = ['user_3','user_6','user_7','user_9','user_10','user_4','user_5']
-dirs = os.listdir('./dataset/')
+l = ['aug_hand']
+dirs = os.listdir('./original_dataset')
 for dir in dirs:
         if dir not in l:
                 continue
-        imgs = os.listdir('./dataset/'+dir+'/')
+        imgs = os.listdir('./original_dataset/'+dir+'/')
         for img in tqdm(imgs):
                 try:
-                        image = io.imread('./dataset/'+dir+'/'+img)
+                        image = io.imread('./original_dataset/'+dir+'/'+img)
                         out = transform.warp(image, fisheye)
                         sizes = out.shape
                         height = float(sizes[0])
@@ -35,7 +35,8 @@ for dir in dirs:
                         fig.add_axes(ax)
                         plt.axis('off')
                         plt.imshow(out)
-                        plt.savefig('./dataset/fish_hand/'+dir+'/'+img, dpi = height)
+                        plt.savefig('./dataset/aug_fish_hand/'+'/'+img, dpi = height)
+                        plt.close()
                 except:
                         print("err  ",img)
                         continue

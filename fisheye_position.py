@@ -48,40 +48,45 @@ def distort(x,y):
     return [int(r*np.cos(the)+119.5), int(r*np.sin(the)+119.5)]
 
 def save_fig(img,position, filename):
-    '''
-    save img with detected hand location in square
-    Input:  img - npnd array
-            position - [x1,y1,x2,y2]
-            filename
-    Output: saved image in directory
-    '''
+        '''
+        save img with detected hand location in square
+        Input:  img - npnd array
+                position - [x1,y1,x2,y2]
+                filename
+        Output: saved image in directory
+        '''
     
-    rect = patches.Rectangle((position[0],position[1]),position[2]- position[0],position[3]- position[1],linewidth=3,edgecolor='r',facecolor='none')
-    fig,ax = plt.subplots(1)
-    ax.imshow(img)
-    ax.add_patch(rect)
-    plt.savefig('./dataset/patch_fish/'+filename)
+        fig = plt.figure(figsize=(6,6),dpi=240)
+        fig.set_size_inches(1, 1, forward=False)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        plt.axis('off')
+        plt.imshow(img[position[1]: position[3], position[0]: position[2]])
+        plt.savefig('./dataset/train_fish_hand/'+'/'+filename, dpi = 240)
+        plt.close()
+        
+files = os.listdir('./original_dataset/aug_hand')
+files.remove('handloc.csv')
+files.sort()
+ll = ['aug_hand']
 
-
-files = os.listdir('./dataset//')
-ll = ['user_3','user_6','user_7','user_9','user_10','user_4','user_5']
-
-for file in files:
-        if file not in ll:
+position = []
+df = pd.read_csv('./original_dataset/aug_hand/handloc.csv', header = None)
+for file,l in tqdm(zip(files,df.iterrows())):                
+        try:
+                # divide by 2 because its reshaped
+                # y pos 
+                l[1][0] = l[1][0]//2
+                # x pos
+                l[1][1] = l[1][1]//2
+                l[1][2] = 75
+                
+                position.append(distort(l[1][1],l[1][0])+ distort(l[1][1]+l[1][2],l[1][0]) + distort(l[1][1]+l[1][2],l[1][0]+ l[1][2])+ distort(l[1][1],l[1][0]+ l[1][2]))
+                image = plt.imread('./dataset/aug_fish_hand/'+ file)
+                save_fig(image,[distort(l[1][1],l[1][0])[0],distort(l[1][1],l[1][0])[1],distort(l[1][1]+l[1][2],l[1][0]+l[1][2])[0], distort(l[1][1]+l[1][2],l[1][0]+l[1][2])[1]], file)
+        except:
+                print(file, l[1], l[0])
                 continue
-        else:
-                position = []
-                df = pd.read_csv('./dataset/'+file+'/'+file+'_loc.csv', header = None)
-                for i, l in tqdm(df.iterrows()):
-                        if i == 0:
-                                continue
-                        l[1] = int(l[1])
-                        l[2] = int(l[2])
-                        l[3] = int(l[3])
-                        l[4] = int(l[4])
-                        
-                        position.append(distort(l[1],l[2])+ distort(l[3],l[2]) + distort(l[3],l[4])+ distort(l[1],l[4]))
-                        image = plt.imread('./dataset/fish_hand/'+l[0])
-                        save_fig(image,[distort(l[1],l[2])[0],distort(l[1],l[2])[1],distort(l[3]+5,l[4])[0], distort(l[3]+5,l[4]+5)[1]],l[0])
-                position_df = pd.DataFrame(position)
-                position_df.to_csv('./dataset/fish_hand/'+file+'/'+file+'.csv',index= False, header=False)
+position_df = pd.DataFrame(position)
+position_df.to_csv('./dataset/aug_fish_hand/handloc.csv',index= False, header=False)

@@ -250,10 +250,13 @@ def evaluate(x, label, model, step_x=20, step_y=20):
                 if predicted == 1 and z < 0.5:
                     out_hog.append(img_hog)
                     false_pos += 1 
+                if false_pos > 60000:
+                    label = [0] * false_pos
+                    return out_hog, label, false_pos    
     label = [0] * false_pos
     return out_hog, label, false_pos   
 
-def hard_negative_mining(x, label,threshold= 601, max_iter = 30):
+def hard_negative_mining(x, label,threshold= 601, max_iter = 50):
     '''
     Train model through hard negative mining
     Input : x - (train image directories, coordinates of hand)
@@ -310,18 +313,38 @@ class hand_localizer(object):
         '''
         By moving model's false output to './dataset/error' the model further trains on the false inputs
         '''
-        test_imgs = os.listdir('./dataset/error')
-        for img in test_imgs:
-            img_np = plt.imread('./dataset/error/'+img)
-            print(img_np.shape)
+        # augment more hand data
+        test_imgs = os.listdir('./dataset/train_fish_hand')
+        for i,img in enumerate(test_imgs):
+            if i % 1000 == 0:
+                print(i)
+            img_np = plt.imread('./dataset/train_fish_hand/'+img)
             img_np = resize(img_np, ((150,150)))
             img_hog = hog(rgb2gray(img_np))                        
-            self.handDetector.partial_fit([img_hog], [0])
-pretrain_model = "0711_aug.pkl"
-model = hand_localizer()
-if pretrain_model in os.listdir('./models/'):
-    model.handDetector = pickle.load(gzip.open('./models/'+pretrain_model, 'rb'))
-else:
-    model.train()
-model.save("0711_aug.pkl")
-model.evaluate("./results/fisheye_detector/test_data")
+            self.handDetector.partial_fit([img_hog], [1])
+
+        # augment more other dataset with false label
+        # test_imgs = os.listdir('./dataset/error')
+        # for i,img in enumerate(test_imgs):
+        #     img_np = plt.imread('./dataset/error/'+img)
+        #     print(i,img, img_np.shape)
+            
+        #     if img_np.shape[0] + img_np.shape[1] < 250:
+        #         img_np = resize(img_np, ((150,150)))
+        #         img_hog = hog(rgb2gray(img_np))                        
+        #         self.handDetector.partial_fit([img_hog], [0])
+        #     else:
+        #         for x in range(0,img_np.shape[1]- 100,24):
+        #             for y in range(0,img_np.shape[0]- 100,24):
+        #                 img_np2 = img_np[y: y+100 , x: x+ 100]
+        #                 img_np2 = resize(img_np2, ((150,150)))
+        #                 img_hog = hog(rgb2gray(img_np2))
+        #                 self.handDetector.partial_fit([img_hog], [0])
+# pretrain_model = "0712_aug.pkl"
+# model = hand_localizer()
+# if pretrain_model in os.listdir('./models/'):
+#     model.handDetector = pickle.load(gzip.open('./models/'+pretrain_model, 'rb'))
+# else:
+#     model.train()
+# model.save("0712_aug.pkl")
+# model.evaluate("./results/fisheye_detector/test_data")
