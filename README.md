@@ -9,8 +9,6 @@ Refer to the notebook in the directory.
 
 - preprocess.py 
     generates cropped hand in ./dataset/cropped_hand and a csv file in cropped_hand directory | it makes use of the orignal dataset | includes the side of the cropped hand
-    ### Remark
-        output of the cropped image is resized to 128 *128
 
 - pretrained_undistorted.py
     Using pretrained model, crop the hand from an image and save cropped image to ./result/...
