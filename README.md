@@ -8,37 +8,37 @@ Refer to the notebook in the directory.
 
 ## Files 
 
-**localizer.py**
+    - localizer.py
 
-fisheye localizer script involves hard negative mining 
+    fisheye localizer script involves hard negative mining 
 
-**preprocess.py**
+    - preprocess.py
 
-generates cropped hand in ./dataset/cropped_hand and a csv file in cropped_hand directory | it makes use of the orignal dataset | includes the side of the cropped hand
+    generates cropped hand in ./dataset/cropped_hand and a csv file in cropped_hand directory | it makes use of the orignal dataset | includes the side of the cropped hand
 
-**pretrained_undistorted.py**
+    - pretrained_undistorted.py
 
-Using pretrained model, crop the hand from an image and save cropped image to ./result/...
+    Using pretrained model, crop the hand from an image and save cropped image to ./result/...
 
 
-**pretrained_undistorted.py**
+    - pretrained_undistorted.py
 
-Using pretrained model, crop the hand from an image and save cropped image to ./dataset/cropped_hand
+    Using pretrained model, crop the hand from an image and save cropped image to ./dataset/cropped_hand
 
-**fisheye_position.py**
+    - fisheye_position.py
 
-Generates a csv file in fish_hand directory | csv includes the location of vertices of distorted image
-    
-**util.py**
+    Generates a csv file in fish_hand directory | csv includes the location of vertices of distorted image
 
-Etc functions required for test and modeling
+    - util.py
 
-**gesture_recognizer1.py**
+    Etc functions required for test and modeling
 
-Generates plain handDetector.pkl at current directory
+    - gesture_recognizer1.py 
 
-**./data_augment/...**
-Files for generating augmented data
+    Generates plain handDetector.pkl at current directory
+
+    ./data_augment/*
+    Files for generating augmented data
 
 
 
